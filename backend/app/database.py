@@ -20,6 +20,15 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 client = None
 db = None
 
+# Initialize collections
+users_collection = None
+pages_collection = None
+versions_collection = None
+changes_collection = None
+change_logs_collection = None
+password_reset_tokens_collection = None
+audit_logs_collection = None
+
 try:
     client = MongoClient(MONGO_URI)
     client.admin.command('ping')  # Test the connection

@@ -1,5 +1,4 @@
-from pymongo import MongoClient, ASCENDING, DESCENDING
-from pymongo.errors import DuplicateKeyError, ConnectionFailure, ServerSelectionTimeoutError
+from pymongo import DESCENDING
 from datetime import datetime, timedelta
 import os
 from bson import ObjectId
@@ -16,65 +15,22 @@ from .services.audit_service import audit_service
 # ✅ FIXED IMPORT: Remove leading dot
 from .services.versioning_service import VersioningService
 
+logger = logging.getLogger(__name__)
+
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# MongoDB connection
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-client = None
-db = None
-
-# Set up logging for this module FIRST
-logger = logging.getLogger(__name__)
-
-try:
-    client = MongoClient(MONGO_URI)
-    client.admin.command('ping')  # Test the connection
-    print("✅ MongoDB connection successful!")
-    db = client['freshlense']
-
-    # Initialize services with database connection
-    mfa_cleanup_service.set_database(db)
-    audit_service.set_database(db)
-
-    # Collections
-    users_collection = db['users']
-    pages_collection = db['tracked_pages']
-    versions_collection = db['page_versions']
-    changes_collection = db['change_logs']
-
-    # Indexes - ✅ UPDATED: No TTL indexes on users collection
-    def create_indexes():
-        # Users indexes - SAFE VERSION (NO TTL!)
-        users_collection.create_index([("email", ASCENDING)], unique=True)
-        users_collection.create_index([("created_at", DESCENDING)])
-        users_collection.create_index([("mfa_code_expires", ASCENDING)])  # Regular index, not TTL!
-        users_collection.create_index([("is_deleted", ASCENDING)])  # For soft delete queries
-        
-        # Pages indexes
-        pages_collection.create_index([("user_id", ASCENDING), ("url", ASCENDING)], unique=True)
-        pages_collection.create_index([("user_id", ASCENDING), ("is_active", ASCENDING)])
-        
-        # Versions indexes
-        versions_collection.create_index([("page_id", ASCENDING), ("timestamp", DESCENDING)])
-        # ✅ ADD NEW INDEXES FOR SMART VERSIONING
-        versions_collection.create_index([("page_id", ASCENDING), ("checksum", ASCENDING)])
-        versions_collection.create_index([("page_id", ASCENDING), ("change_significance_score", DESCENDING)])
-        
-        # Changes indexes
-        changes_collection.create_index([("user_id", ASCENDING), ("timestamp", DESCENDING)])
-        changes_collection.create_index([("page_id", ASCENDING), ("timestamp", DESCENDING)])
-        
-        print("✅ Database indexes created successfully (NO TTL on users)!")
-
-    create_indexes()
-
-except (ConnectionFailure, ServerSelectionTimeoutError) as e:
-    print(f"❌ MongoDB connection failed: {e}")
-    logger.error(f"MongoDB connection failed: {e}")
-    client = None
-    db = None
-
+from .database import (
+    db,
+    users_collection,
+    pages_collection,
+    versions_collection,
+    changes_collection,
+    change_logs_collection,
+    password_reset_tokens_collection,
+    audit_logs_collection,
+    is_db_available,
+)
 
 # ---------------- Helper ----------------
 def is_db_available():

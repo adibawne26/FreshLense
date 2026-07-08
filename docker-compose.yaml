@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+
+  mongodb:
+    image: mongo:7
+    container_name: freshlense-mongodb
+
+    restart: unless-stopped
+
+    ports:
+      - "27017:27017"
+
+    environment:
+      MONGO_INITDB_DATABASE: freshlense
+
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+
+    container_name: freshlense-backend
+
+    depends_on:
+      - mongodb
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/freshlense
+
+volumes:
+  mongo-data:
