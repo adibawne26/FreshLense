@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: freshlense-mongodb
+
+    restart: unless-stopped
+
+    ports:
+      - "27017:27017"
+
+    environment:
+      MONGO_INITDB_DATABASE: freshlense
+
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    image: adityabawne37/freshlense-backend:latest
+    container_name: freshlense-backend
+
+    depends_on:
+      - mongodb
+
+    restart: unless-stopped
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/freshlense
+
+  frontend:
+    image: adityabawne37/freshlense-frontend:latest
+    container_name: freshlense-frontend
+
+    depends_on:
+      - backend
+
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      REACT_APP_BACKEND_URL: http://backend:8000
+
+volumes:
+  mongo-data:
