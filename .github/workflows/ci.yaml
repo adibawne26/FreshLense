@@ -1,0 +1,32 @@
+name: FreshLense CI
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Backend
+        run: |
+          docker build -t freshlense-backend:${{ github.sha }} ./backend
+
+      - name: Build Frontend
+        run: |
+          docker build -t freshlense-frontend:${{ github.sha }} ./frontend
+
+      - name: Verify Images
+        run: docker images
