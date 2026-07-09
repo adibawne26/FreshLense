@@ -47,18 +47,34 @@ pipeline {
             }
         }
 
-        stage('Pull Images') {
+        stage('Pull Latest Images') {
             steps {
-                sh """
+                sh '''
                     docker pull ${BACKEND_IMAGE}
                     docker pull ${FRONTEND_IMAGE}
-                """
+                '''
             }
         }
 
-        stage('Verify Images') {
+        stage('Deploy') {
             steps {
-                sh 'docker images | grep freshlense'
+                sh '''
+                    cd /var/jenkins_home
+
+                    docker compose -f docker-compose.prod.yaml down
+
+                    docker compose -f docker-compose.prod.yaml up -d
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                    docker ps
+
+                    docker compose -f /var/jenkins_home/docker-compose.prod.yaml ps
+                '''
             }
         }
     }
