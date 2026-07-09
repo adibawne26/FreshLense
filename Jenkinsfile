@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_USERNAME = "adityabawne37"
         BACKEND_IMAGE = "adityabawne37/freshlense-backend:latest"
         FRONTEND_IMAGE = "adityabawne37/freshlense-frontend:latest"
     }
@@ -15,6 +14,23 @@ pipeline {
             }
         }
 
+        stage('Docker Credentials Debug') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo "========== DEBUG =========="
+                        echo "Username: $DOCKER_USER"
+                        echo "Password Length: $(printf "%s" "$DOCKER_PASS" | wc -c)"
+                        echo "==========================="
+                    '''
+                }
+            }
+        }
+
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -22,11 +38,10 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-
                     sh '''
-                    echo "$DOCKER_PASS" | docker login \
-                    -u "$DOCKER_USER" \
-                    --password-stdin
+                        echo "$DOCKER_PASS" | docker login \
+                            -u "$DOCKER_USER" \
+                            --password-stdin
                     '''
                 }
             }
@@ -35,8 +50,8 @@ pipeline {
         stage('Pull Images') {
             steps {
                 sh """
-                docker pull ${BACKEND_IMAGE}
-                docker pull ${FRONTEND_IMAGE}
+                    docker pull ${BACKEND_IMAGE}
+                    docker pull ${FRONTEND_IMAGE}
                 """
             }
         }
