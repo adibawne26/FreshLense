@@ -32,8 +32,8 @@ services:
 
     restart: unless-stopped
 
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
 
     environment:
       MONGO_URI: mongodb://mongodb:27017/freshlense
@@ -49,7 +49,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "3000:3000"
+      - "80:80"
 
     environment:
       REACT_APP_BACKEND_URL: http://backend:8000
