@@ -16,10 +16,12 @@ pipeline {
 
         stage('Pull Latest Images') {
             steps {
-                sh '''
-                docker pull ${BACKEND_IMAGE}
-                docker pull ${FRONTEND_IMAGE}
-                '''
+                retry(3) {
+                    sh '''
+                    docker pull ${BACKEND_IMAGE}
+                    docker pull ${FRONTEND_IMAGE}
+                    '''
+                }
             }
         }
 
@@ -42,32 +44,49 @@ pipeline {
 
             steps {
                 sh '''
+                echo "==============================="
                 echo "Waiting for MongoDB..."
+                echo "==============================="
 
-                until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-mongodb)" = "healthy" ]; do
+                while true; do
+                    STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-mongodb)
+                    echo "MongoDB Status: $STATUS"
+
+                    [ "$STATUS" = "healthy" ] && break
                     sleep 5
                 done
-
-                echo "MongoDB is healthy."
-
-                echo "Waiting for Backend..."
-
-                until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-backend)" = "healthy" ]; do
-                    sleep 5
-                done
-
-                echo "Backend is healthy."
-
-                echo "Waiting for Frontend..."
-
-                until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-frontend)" = "healthy" ]; do
-                    sleep 5
-                done
-
-                echo "Frontend is healthy."
 
                 echo ""
+                echo "==============================="
+                echo "Waiting for Backend..."
+                echo "==============================="
+
+                while true; do
+                    STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-backend)
+                    echo "Backend Status: $STATUS"
+
+                    [ "$STATUS" = "healthy" ] && break
+                    sleep 5
+                done
+
+                echo ""
+                echo "==============================="
+                echo "Waiting for Frontend..."
+                echo "==============================="
+
+                while true; do
+                    STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-frontend)
+                    echo "Frontend Status: $STATUS"
+
+                    [ "$STATUS" = "healthy" ] && break
+                    sleep 5
+                done
+
+                echo ""
+                echo "=========================================="
+                echo "FreshLense Deployment Successful!"
                 echo "All services are healthy."
+                echo "=========================================="
 
                 docker compose -f /var/jenkins_home/docker-compose.prod.yaml ps
                 '''
@@ -76,6 +95,7 @@ pipeline {
     }
 
     post {
+
         success {
             echo 'FreshLense deployed successfully!'
         }
