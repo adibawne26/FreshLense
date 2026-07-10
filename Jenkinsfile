@@ -14,44 +14,11 @@ pipeline {
             }
         }
 
-        stage('Docker Credentials Debug') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh '''
-                        echo "========== DEBUG =========="
-                        echo "Username: $DOCKER_USER"
-                        echo "Password Length: $(printf "%s" "$DOCKER_PASS" | wc -c)"
-                        echo "==========================="
-                    '''
-                }
-            }
-        }
-
-        stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login \
-                            -u "$DOCKER_USER" \
-                            --password-stdin
-                    '''
-                }
-            }
-        }
-
         stage('Pull Latest Images') {
             steps {
                 sh '''
-                    docker pull ${BACKEND_IMAGE}
-                    docker pull ${FRONTEND_IMAGE}
+                docker pull ${BACKEND_IMAGE}
+                docker pull ${FRONTEND_IMAGE}
                 '''
             }
         }
@@ -59,16 +26,16 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    cd /var/jenkins_home
+                cd /var/jenkins_home
 
-                    docker compose -f docker-compose.prod.yaml down
-
-                    docker compose -f docker-compose.prod.yaml up -d
+                docker compose -f docker-compose.prod.yaml down
+                docker compose -f docker-compose.prod.yaml up -d
                 '''
             }
         }
 
         stage('Verify Deployment') {
+
             options {
                 timeout(time: 3, unit: 'MINUTES')
             }
@@ -81,17 +48,23 @@ pipeline {
                     sleep 5
                 done
 
+                echo "MongoDB is healthy."
+
                 echo "Waiting for Backend..."
 
                 until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-backend)" = "healthy" ]; do
                     sleep 5
                 done
 
+                echo "Backend is healthy."
+
                 echo "Waiting for Frontend..."
 
                 until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-frontend)" = "healthy" ]; do
                     sleep 5
                 done
+
+                echo "Frontend is healthy."
 
                 echo ""
                 echo "All services are healthy."
@@ -104,11 +77,15 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment preparation completed successfully.'
+            echo 'FreshLense deployed successfully!'
         }
 
         failure {
             echo 'Pipeline failed.'
+        }
+
+        always {
+            sh 'docker image prune -f || true'
         }
     }
 }
