@@ -1,4 +1,5 @@
 services:
+
   mongodb:
     image: mongo:7
     container_name: freshlense-mongodb
@@ -15,7 +16,7 @@ services:
       - mongo-data:/data/db
 
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD","mongosh","--eval","db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,19 +38,6 @@ services:
     environment:
       MONGO_URI: mongodb://mongodb:27017/freshlense
 
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
-
   frontend:
     image: adityabawne37/freshlense-frontend:latest
     container_name: freshlense-frontend
@@ -65,13 +53,6 @@ services:
 
     environment:
       REACT_APP_BACKEND_URL: http://backend:8000
-
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
 
 volumes:
   mongo-data:

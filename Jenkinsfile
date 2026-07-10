@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE = "adityabawne37/freshlense-backend:latest"
-        FRONTEND_IMAGE = "adityabawne37/freshlense-frontend:latest"
-        NETWORK = "freshlense-network"
+        COMPOSE_FILE = "docker-compose.prod.yaml"
     }
 
     stages {
@@ -15,44 +13,22 @@ pipeline {
             }
         }
 
-        stage('Pull Latest Images') {
-            steps {
-                retry(3) {
-                    sh '''
-                        docker pull ${BACKEND_IMAGE}
-                        docker pull ${FRONTEND_IMAGE}
-                    '''
-                }
-            }
-        }
-
         stage('Deploy') {
             steps {
                 sh '''
-                    echo "Stopping old containers..."
+                    cd "$WORKSPACE"
 
-                    docker rm -f freshlense-backend || true
-                    docker rm -f freshlense-frontend || true
+                    echo "====================================="
+                    echo "Pulling latest images..."
+                    echo "====================================="
 
-                    echo "Starting Backend..."
+                    docker compose -f ${COMPOSE_FILE} pull
 
-                    docker run -d \
-                        --name freshlense-backend \
-                        --network ${NETWORK} \
-                        -p 8000:8000 \
-                        --restart unless-stopped \
-                        -e MONGO_URI=mongodb://freshlense-mongodb:27017/freshlense \
-                        ${BACKEND_IMAGE}
+                    echo "====================================="
+                    echo "Starting FreshLense..."
+                    echo "====================================="
 
-                    echo "Starting Frontend..."
-
-                    docker run -d \
-                        --name freshlense-frontend \
-                        --network ${NETWORK} \
-                        -p 3000:3000 \
-                        --restart unless-stopped \
-                        -e REACT_APP_BACKEND_URL=http://freshlense-backend:8000 \
-                        ${FRONTEND_IMAGE}
+                    docker compose -f ${COMPOSE_FILE} up -d --remove-orphans
                 '''
             }
         }
@@ -60,49 +36,47 @@ pipeline {
         stage('Verify Deployment') {
 
             options {
-                timeout(time: 3, unit: 'MINUTES')
+                timeout(time: 5, unit: 'MINUTES')
             }
 
             steps {
                 sh '''
-                    echo "================================"
-                    echo "Checking MongoDB..."
-                    echo "================================"
+                    echo ""
+                    echo "==============================="
+                    echo "Waiting for MongoDB..."
+                    echo "==============================="
 
-                    docker ps | grep freshlense-mongodb
+                    until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-mongodb)" = "healthy" ]; do
+                        docker inspect -f '{{.State.Health.Status}}' freshlense-mongodb
+                        sleep 5
+                    done
 
                     echo ""
-                    echo "================================"
+                    echo "==============================="
                     echo "Waiting for Backend..."
-                    echo "================================"
+                    echo "==============================="
 
-                    while true; do
-                        STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}starting{{end}}' freshlense-backend)
-                        echo "Backend Status: $STATUS"
-
-                        [ "$STATUS" = "healthy" ] && break
+                    until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-backend)" = "healthy" ]; do
+                        docker inspect -f '{{.State.Health.Status}}' freshlense-backend
                         sleep 5
                     done
 
                     echo ""
-                    echo "================================"
+                    echo "==============================="
                     echo "Waiting for Frontend..."
-                    echo "================================"
+                    echo "==============================="
 
-                    while true; do
-                        STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}starting{{end}}' freshlense-frontend)
-                        echo "Frontend Status: $STATUS"
-
-                        [ "$STATUS" = "healthy" ] && break
+                    until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-frontend)" = "healthy" ]; do
+                        docker inspect -f '{{.State.Health.Status}}' freshlense-frontend
                         sleep 5
                     done
 
                     echo ""
                     echo "=========================================="
-                    echo " FreshLense Deployment Successful!"
+                    echo "FreshLense Deployment Successful!"
                     echo "=========================================="
 
-                    docker ps
+                    docker compose -f ${COMPOSE_FILE} ps
                 '''
             }
         }
