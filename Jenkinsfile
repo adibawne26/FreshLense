@@ -69,25 +69,33 @@ pipeline {
         }
 
         stage('Verify Deployment') {
+            options {
+                timeout(time: 3, unit: 'MINUTES')
+            }
+
             steps {
                 sh '''
                 echo "Waiting for MongoDB..."
-                until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-mongodb)" = "healthy" ]; do
+
+                until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-mongodb)" = "healthy" ]; do
                     sleep 5
                 done
 
                 echo "Waiting for Backend..."
-                until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-backend)" = "healthy" ]; do
+
+                until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-backend)" = "healthy" ]; do
                     sleep 5
                 done
 
                 echo "Waiting for Frontend..."
-                until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-frontend)" = "healthy" ]; do
+
+                until [ "$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}' freshlense-frontend)" = "healthy" ]; do
                     sleep 5
                 done
 
                 echo ""
                 echo "All services are healthy."
+
                 docker compose -f /var/jenkins_home/docker-compose.prod.yaml ps
                 '''
             }
