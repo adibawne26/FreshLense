@@ -18,17 +18,8 @@ pipeline {
                 sh '''
                     cd "$WORKSPACE"
 
-                    echo "====================================="
-                    echo "Pulling latest images..."
-                    echo "====================================="
-
-                    docker compose -f ${COMPOSE_FILE} pull
-
-                    echo "====================================="
-                    echo "Starting FreshLense..."
-                    echo "====================================="
-
-                    docker compose -f ${COMPOSE_FILE} up -d --remove-orphans
+                    docker compose -f docker-compose.prod.yaml pull
+                    docker compose -f docker-compose.prod.yaml up -d --remove-orphans
                 '''
             }
         }
