@@ -40,6 +40,12 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       RESEND_API_KEY: ${RESEND_API_KEY}
 
+    security_opt:
+      - no-new-privileges:true
+
+    cap_drop:
+      - ALL
+
   frontend:
     image: adityabawne37/freshlense-frontend:latest
     container_name: freshlense-frontend
@@ -55,6 +61,12 @@ services:
 
     environment:
       REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
+
+    security_opt:
+      - no-new-privileges:true
+
+    cap_drop:
+      - ALL
 
 volumes:
   mongo-data:
