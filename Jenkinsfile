@@ -18,7 +18,7 @@ pipeline {
                 sh '''
                     cd "$WORKSPACE"
 
-                    cat > .env.prod <<EOF
+                    cat > .env <<EOF
         MONGO_URI=mongodb://mongodb:27017/freshlense
         REACT_APP_BACKEND_URL=http://backend:8000
 
@@ -29,7 +29,6 @@ pipeline {
                     docker compose -f docker-compose.prod.yaml pull
 
                     docker compose -f docker-compose.prod.yaml up -d --remove-orphans
-                '''
             }
         }
 

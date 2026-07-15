@@ -78,6 +78,5 @@ temp/
 tmp/
 '@ | Out-File -FilePath .gitignore -Encoding UTF8
 
-.env
 .env.local
 .env.production
