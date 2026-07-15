@@ -25,9 +25,11 @@ OPENAI_API_KEY=
 RESEND_API_KEY=
 EOF
 
-                    docker compose -f ${COMPOSE_FILE} down --remove-orphans || true
-                    docker compose -f ${COMPOSE_FILE} pull
-                    docker compose -f ${COMPOSE_FILE} up -d --remove-orphans
+                    docker compose -p freshlense -f docker-compose.prod.yaml down --remove-orphans || true
+
+                    docker compose -p freshlense -f docker-compose.prod.yaml pull
+
+                    docker compose -p freshlense -f docker-compose.prod.yaml up -d
                 '''
             }
         }
@@ -84,7 +86,7 @@ EOF
                     echo "FreshLense Deployment Successful!"
                     echo "=========================================="
 
-                    docker compose -f ${COMPOSE_FILE} ps
+                    docker compose -p freshlense -f ${COMPOSE_FILE} ps
                 '''
             }
         }
