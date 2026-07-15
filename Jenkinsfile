@@ -29,7 +29,11 @@ EOF
 
                     docker compose -p freshlense -f docker-compose.prod.yaml pull
 
-                    docker compose -p freshlense -f docker-compose.prod.yaml up -d
+                    docker compose \
+                        --project-directory "$WORKSPACE" \
+                        -p freshlense \
+                        -f docker-compose.prod.yaml \
+                        up -d
                 '''
             }
         }

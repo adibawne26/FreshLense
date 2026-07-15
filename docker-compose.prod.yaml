@@ -72,7 +72,7 @@ services:
       - "9090:9090"
 
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${PWD}/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
 
     depends_on:
       backend:
