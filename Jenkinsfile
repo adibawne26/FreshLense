@@ -27,13 +27,11 @@ EOF
 
                     docker compose -p freshlense -f docker-compose.prod.yaml down --remove-orphans || true
 
-                    docker compose -p freshlense -f docker-compose.prod.yaml pull
+                    docker compose -p freshlense -f docker-compose.prod.yaml pull backend frontend
 
-                    docker compose \
-                        --project-directory "$WORKSPACE" \
-                        -p freshlense \
-                        -f docker-compose.prod.yaml \
-                        up -d
+                    docker compose -p freshlense -f docker-compose.prod.yaml build prometheus
+
+                    docker compose -p freshlense -f docker-compose.prod.yaml up -d
                 '''
             }
         }
