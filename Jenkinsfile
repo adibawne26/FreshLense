@@ -19,16 +19,15 @@ pipeline {
                     cd "$WORKSPACE"
 
                     cat > .env <<EOF
-        MONGO_URI=mongodb://mongodb:27017/freshlense
-        REACT_APP_BACKEND_URL=http://backend:8000
+MONGO_URI=mongodb://mongodb:27017/freshlense
+REACT_APP_BACKEND_URL=http://backend:8000
+OPENAI_API_KEY=
+RESEND_API_KEY=
+EOF
 
-        OPENAI_API_KEY=
-        RESEND_API_KEY=
-        EOF
-
-                    docker compose -f docker-compose.prod.yaml pull
-
-                    docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+                    docker compose -f ${COMPOSE_FILE} pull
+                    docker compose -f ${COMPOSE_FILE} up -d --remove-orphans
+                '''
             }
         }
 
@@ -45,8 +44,11 @@ pipeline {
                     echo "Waiting for MongoDB..."
                     echo "==============================="
 
-                    until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-mongodb)" = "healthy" ]; do
-                        docker inspect -f '{{.State.Health.Status}}' freshlense-mongodb
+                    while true; do
+                        STATUS=$(docker inspect -f '{{.State.Health.Status}}' freshlense-mongodb)
+                        echo "MongoDB Status: $STATUS"
+
+                        [ "$STATUS" = "healthy" ] && break
                         sleep 5
                     done
 
@@ -55,8 +57,11 @@ pipeline {
                     echo "Waiting for Backend..."
                     echo "==============================="
 
-                    until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-backend)" = "healthy" ]; do
-                        docker inspect -f '{{.State.Health.Status}}' freshlense-backend
+                    while true; do
+                        STATUS=$(docker inspect -f '{{.State.Health.Status}}' freshlense-backend)
+                        echo "Backend Status: $STATUS"
+
+                        [ "$STATUS" = "healthy" ] && break
                         sleep 5
                     done
 
@@ -65,8 +70,11 @@ pipeline {
                     echo "Waiting for Frontend..."
                     echo "==============================="
 
-                    until [ "$(docker inspect -f '{{.State.Health.Status}}' freshlense-frontend)" = "healthy" ]; do
-                        docker inspect -f '{{.State.Health.Status}}' freshlense-frontend
+                    while true; do
+                        STATUS=$(docker inspect -f '{{.State.Health.Status}}' freshlense-frontend)
+                        echo "Frontend Status: $STATUS"
+
+                        [ "$STATUS" = "healthy" ] && break
                         sleep 5
                     done
 
