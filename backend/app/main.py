@@ -8,6 +8,7 @@ from bson import ObjectId
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+from prometheus_fastapi_instrumentator import Instrumentator
 
 # ✅ Load environment variables
 from dotenv import load_dotenv
@@ -297,6 +298,8 @@ app = FastAPI(
     version="1.1.0",  # Updated version
     lifespan=lifespan
 )
+
+Instrumentator().instrument(app).expose(app)
 
 # ================================================
 # CORS middleware with explicit OPTIONS handling
