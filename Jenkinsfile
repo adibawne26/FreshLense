@@ -32,6 +32,8 @@ EOF
 
                     docker compose -p freshlense -f docker-compose.prod.yaml build prometheus
 
+                    ls -ld monitoring/alertmanager/alertmanager.yml
+
                     docker compose -p freshlense -f docker-compose.prod.yaml up -d
                 '''
             }
