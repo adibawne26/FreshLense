@@ -79,5 +79,21 @@ services:
       backend:
         condition: service_healthy
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: freshlense-grafana
+
+    restart: unless-stopped
+
+    depends_on:
+      - prometheus
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - grafana-data:/var/lib/grafana
+
 volumes:
   mongo-data:
+  grafana-data:
