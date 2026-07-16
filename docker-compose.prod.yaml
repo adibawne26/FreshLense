@@ -79,6 +79,21 @@ services:
       backend:
         condition: service_healthy
 
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: freshlense-node-exporter
+
+    restart: unless-stopped
+
+    ports:
+      - "9100:9100"
+
+    command:
+      - "--path.rootfs=/host"
+
+    volumes:
+      - "/:/host:ro,rslave"
+
   grafana:
     image: grafana/grafana:latest
     container_name: freshlense-grafana
