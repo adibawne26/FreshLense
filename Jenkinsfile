@@ -19,6 +19,11 @@ pipeline {
                 sh '''
                     cd "$WORKSPACE"
 
+                    rm -rf /opt/freshlense
+                    mkdir -p /opt/freshlense
+                    cp -a . /opt/freshlense/
+                    cd /opt/freshlense
+
                     cat > .env <<EOF
 MONGO_URI=mongodb://mongodb:27017/freshlense
 REACT_APP_BACKEND_URL=http://backend:8000
@@ -26,17 +31,13 @@ OPENAI_API_KEY=
 RESEND_API_KEY=
 EOF
 
-                    docker compose -p freshlense -f docker-compose.prod.yaml down --remove-orphans || true
+                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml down --remove-orphans || true
 
-                    docker compose -p freshlense -f docker-compose.prod.yaml pull backend frontend
+                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml pull backend frontend
 
-                    docker compose -p freshlense -f docker-compose.prod.yaml build prometheus
+                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml build prometheus
 
-                    ls -ld monitoring/alertmanager/alertmanager.yml
-
-                    docker compose -f docker-compose.prod.yaml config | sed -n '/alertmanager:/,/^[^ ]/p'
-
-                    docker compose -p freshlense -f docker-compose.prod.yaml up -d
+                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml up -d
                 '''
             }
         }
@@ -93,7 +94,7 @@ EOF
                     echo "FreshLense Deployment Successful!"
                     echo "=========================================="
 
-                    docker compose -p freshlense -f ${COMPOSE_FILE} ps
+                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml ps
                 '''
             }
         }
