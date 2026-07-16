@@ -79,4 +79,5 @@ tmp/
 '@ | Out-File -FilePath .gitignore -Encoding UTF8
 
 .env.local
-.env.production
+.env.productionjenkins-backup.tar.gz
+jenkins-backup.tar.gz
