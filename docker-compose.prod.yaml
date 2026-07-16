@@ -79,8 +79,8 @@ services:
       - "9090:9090"
 
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./monitoring/rules:/etc/prometheus/rules:ro
+      - /home/adibawne37/jenkins_home/workspace/FreshLense-CD/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /home/adibawne37/jenkins_home/workspace/FreshLense-CD/monitoring/rules:/etc/prometheus/rules:ro
 
     depends_on:
       backend:
@@ -96,7 +96,7 @@ services:
       - "9093:9093"
 
     volumes:
-      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - /home/adibawne37/jenkins_home/workspace/FreshLense-CD/monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
 
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
@@ -143,7 +143,7 @@ services:
     command: -config.file=/etc/loki/loki-config.yml
 
     volumes:
-      - ./monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml
+      - /home/adibawne37/jenkins_home/workspace/FreshLense-CD/monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
 
   promtail:
     image: grafana/promtail:latest
@@ -154,7 +154,7 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yml
 
     volumes:
-      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /home/adibawne37/jenkins_home/workspace/FreshLense-CD/monitoring/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
