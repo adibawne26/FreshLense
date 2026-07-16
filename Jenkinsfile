@@ -19,10 +19,6 @@ pipeline {
                 sh '''
                     cd "$WORKSPACE"
 
-                    rm -rf /home/adibawne37/freshlense-deploy/*
-                    cp -a . /home/adibawne37/freshlense-deploy/
-                    cd /home/adibawne37/freshlense-deploy
-
                     cat > .env <<EOF
 MONGO_URI=mongodb://mongodb:27017/freshlense
 REACT_APP_BACKEND_URL=http://backend:8000
@@ -30,13 +26,13 @@ OPENAI_API_KEY=
 RESEND_API_KEY=
 EOF
 
-                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml down --remove-orphans || true
+                    docker compose -p freshlense -f "$WORKSPACE/docker-compose.prod.yaml" down --remove-orphans || true
 
-                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml pull backend frontend
+                    docker compose -p freshlense -f "$WORKSPACE/docker-compose.prod.yaml" pull backend frontend
 
-                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml build prometheus
+                    docker compose -p freshlense -f "$WORKSPACE/docker-compose.prod.yaml" build prometheus
 
-                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml up -d
+                    docker compose -p freshlense -f "$WORKSPACE/docker-compose.prod.yaml" up -d
                 '''
             }
         }
