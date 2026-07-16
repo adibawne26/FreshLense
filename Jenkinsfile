@@ -20,7 +20,6 @@ pipeline {
                     cd "$WORKSPACE"
 
                     find monitoring -maxdepth 2 -ls
-                    file monitoring/alertmanager/alertmanager.yml
 
                     cat > .env <<EOF
 MONGO_URI=mongodb://mongodb:27017/freshlense
