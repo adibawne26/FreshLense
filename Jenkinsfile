@@ -19,6 +19,9 @@ pipeline {
                 sh '''
                     cd "$WORKSPACE"
 
+                    find monitoring -maxdepth 2 -ls
+                    file monitoring/alertmanager/alertmanager.yml
+
                     cat > .env <<EOF
 MONGO_URI=mongodb://mongodb:27017/freshlense
 REACT_APP_BACKEND_URL=http://backend:8000
