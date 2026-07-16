@@ -19,10 +19,9 @@ pipeline {
                 sh '''
                     cd "$WORKSPACE"
 
-                    rm -rf /opt/freshlense
-                    mkdir -p /opt/freshlense
-                    cp -a . /opt/freshlense/
-                    cd /opt/freshlense
+                    rm -rf /home/adibawne37/freshlense-deploy/*
+                    cp -a . /home/adibawne37/freshlense-deploy/
+                    cd /home/adibawne37/freshlense-deploy
 
                     cat > .env <<EOF
 MONGO_URI=mongodb://mongodb:27017/freshlense
@@ -31,13 +30,13 @@ OPENAI_API_KEY=
 RESEND_API_KEY=
 EOF
 
-                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml down --remove-orphans || true
+                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml down --remove-orphans || true
 
-                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml pull backend frontend
+                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml pull backend frontend
 
-                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml build prometheus
+                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml build prometheus
 
-                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml up -d
+                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml up -d
                 '''
             }
         }
@@ -94,7 +93,7 @@ EOF
                     echo "FreshLense Deployment Successful!"
                     echo "=========================================="
 
-                    docker compose -p freshlense -f /opt/freshlense/docker-compose.prod.yaml ps
+                    docker compose -p freshlense -f /home/adibawne37/freshlense-deploy/docker-compose.prod.yaml ps
                 '''
             }
         }
