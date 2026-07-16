@@ -23,8 +23,7 @@ logging.basicConfig(
     level=logging.WARNING,  # Only show WARNING and above in console
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(),  # Console handler
-        logging.FileHandler('app.log', mode='a')  # File handler for detailed logs
+        logging.StreamHandler()
     ]
 )
 
@@ -43,17 +42,6 @@ logging.getLogger("app.ai_service").setLevel(logging.INFO)  # AI service logging
 logging.getLogger("app.auth").setLevel(logging.WARNING)  # Reduce auth logs
 logging.getLogger("app.database").setLevel(logging.WARNING)
 logging.getLogger("app.utils").setLevel(logging.WARNING)
-
-# File handler for detailed logs (DEBUG level in file only)
-file_handler = logging.FileHandler('detailed.log')
-file_handler.setLevel(logging.DEBUG)
-file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(file_formatter)
-
-# Add file handler to specific loggers for detailed debugging
-logging.getLogger("app").addHandler(file_handler)
-logging.getLogger("app.scheduler").addHandler(file_handler)
-logging.getLogger("app.ai_service").addHandler(file_handler)
 
 # Create logger for this module
 logger = logging.getLogger(__name__)

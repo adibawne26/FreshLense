@@ -32,13 +32,16 @@ services:
 
     restart: unless-stopped
 
-    expose:
-      - "8000"
+    read_only: true
+
+    ports:
+      - "8000:8000"
 
     environment:
       MONGO_URI: ${MONGO_URI}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       RESEND_API_KEY: ${RESEND_API_KEY}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
 
     security_opt:
       - no-new-privileges:true
@@ -75,9 +78,28 @@ services:
     ports:
       - "9090:9090"
 
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/rules:/etc/prometheus/rules:ro
+
     depends_on:
       backend:
         condition: service_healthy
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: freshlense-alertmanager
+
+    restart: unless-stopped
+
+    ports:
+      - "9093:9093"
+
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
 
   node-exporter:
     image: prom/node-exporter:latest

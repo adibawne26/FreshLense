@@ -18,6 +18,14 @@ scrape_configs:
           job: docker
           __path__: /var/lib/docker/containers/*/*-json.log
 
+    pipeline_stages:
+      - docker: {}
+
+    relabel_configs:
+      - source_labels: ['__path__']
+        regex: '.*/([a-f0-9]{64})/.*'
+        target_label: container_id
+
   - job_name: "freshlense-backend"
 
     static_configs:

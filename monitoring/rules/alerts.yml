@@ -1,0 +1,85 @@
+groups:
+  - name: freshlense-alerts
+
+    rules:
+
+      - alert: BackendDown
+        expr: up{job="freshlense-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "FreshLense Backend is DOWN"
+          description: "Backend has been unreachable for more than 1 minute."
+
+      - alert: HighCPUUsage
+        expr: (100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU Usage"
+          description: "CPU usage has been above 80% for more than 2 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Memory Usage"
+          description: "Memory usage has been above 80% for more than 2 minutes."
+
+      - alert: LowDiskSpace
+        expr: (100 - ((node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} * 100) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low Disk Space"
+          description: "Disk usage has exceeded 85%."
+
+      - alert: NodeExporterDown
+        expr: up{job="node-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node Exporter Down"
+          description: "Node Exporter has stopped responding."
+
+      - alert: PrometheusDown
+        expr: up{job="prometheus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus Down"
+          description: "Prometheus is unreachable."
+
+      - alert: AlertmanagerDown
+        expr: up{job="alertmanager"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Alertmanager Down"
+          description: "Alertmanager is unreachable."
+
+      - alert: LokiDown
+        expr: up{job="loki"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Loki Down"
+          description: "Loki is unreachable."
+
+      - alert: ContainerRestarting
+        expr: changes(container_start_time_seconds[10m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container Restarting"
+          description: "A container has restarted recently."
