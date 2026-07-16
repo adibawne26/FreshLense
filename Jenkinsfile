@@ -34,6 +34,8 @@ EOF
 
                     ls -ld monitoring/alertmanager/alertmanager.yml
 
+                    docker compose -f docker-compose.prod.yaml config | sed -n '/alertmanager:/,/^[^ ]/p'
+
                     docker compose -p freshlense -f docker-compose.prod.yaml up -d
                 '''
             }
