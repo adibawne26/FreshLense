@@ -109,6 +109,36 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  loki:
+    image: grafana/loki:latest
+    container_name: freshlense-loki
+
+    restart: unless-stopped
+
+    ports:
+      - "3100:3100"
+
+    command: -config.file=/etc/loki/loki-config.yml
+
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: freshlense-promtail
+
+    restart: unless-stopped
+
+    command: -config.file=/etc/promtail/promtail-config.yml
+
+    volumes:
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    depends_on:
+      - loki
+
 volumes:
   mongo-data:
   grafana-data:

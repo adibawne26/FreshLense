@@ -7,6 +7,13 @@ from typing import Optional, Tuple
 import re
 import logging
 
+from app.metrics import (
+    crawl_requests_total,
+    crawl_success_total,
+    crawl_failure_total,
+    crawl_duration_seconds,
+)
+
 # Set up logger for this module
 logger = logging.getLogger(__name__)
 
@@ -19,6 +26,9 @@ class ContentFetcher:
         self.domain_delays = {}  # Track last request time per domain
 
     def fetch_url(self, url: str, max_retries: int = 3) -> Optional[str]:
+        crawl_requests_total.inc()
+        logger.warning("FETCH_URL EXECUTED")
+        
         """Fetch HTML content from a URL with retries and error handling"""
         if not url or not url.startswith(('http://', 'https://')):
             logger.error(f"Invalid URL format: {url}")
@@ -32,42 +42,46 @@ class ContentFetcher:
             if time_since_last < 1.0:
                 time.sleep(1.0 - time_since_last)
         
-        for attempt in range(max_retries):
-            try:
-                logger.debug(f"🌐 Fetching {url} (attempt {attempt + 1})")
-                response = self.session.get(url, timeout=15, allow_redirects=True)
-                response.raise_for_status()
+        with crawl_duration_seconds.time():
+
+            for attempt in range(max_retries):
+                try:
+                    logger.debug(f"🌐 Fetching {url} (attempt {attempt + 1})")
+                    response = self.session.get(url, timeout=15, allow_redirects=True)
+                    response.raise_for_status()
+                    
+                    # Check content type
+                    content_type = response.headers.get('content-type', '').lower()
+                    if not any(ct in content_type for ct in ['text/html', 'text/plain', 'application/xhtml']):
+                        logger.warning(f"Unsupported content type: {content_type}")
+                        return None
+                    
+                    self.domain_delays[domain] = time.time()
+                    logger.debug(f"✅ Successfully fetched {url} ({len(response.text)} bytes)")
+                    crawl_success_total.inc()
+                    return response.text
+                    
+                except requests.exceptions.Timeout:
+                    logger.warning(f"⏰ Timeout on attempt {attempt + 1} for {url}")
+                except requests.exceptions.ConnectionError:
+                    logger.warning(f"🔌 Connection error on attempt {attempt + 1} for {url}")
+                except requests.exceptions.HTTPError as e:
+                    logger.warning(f"🚫 HTTP error on attempt {attempt + 1} for {url}: {e}")
+                    # Check if response exists before accessing status_code
+                    if hasattr(e, 'response') and e.response is not None and e.response.status_code in [404, 403, 401]:
+                        # Don't retry for client errors
+                        break
+                except requests.RequestException as e:
+                    logger.warning(f"❌ Request failed on attempt {attempt + 1} for {url}: {e}")
                 
-                # Check content type
-                content_type = response.headers.get('content-type', '').lower()
-                if not any(ct in content_type for ct in ['text/html', 'text/plain', 'application/xhtml']):
-                    logger.warning(f"Unsupported content type: {content_type}")
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt
+                    logger.debug(f"⏳ Waiting {wait_time} seconds before retry...")
+                    time.sleep(wait_time)
+                else:
+                    logger.error(f"💥 All attempts failed for {url}")
+                    crawl_failure_total.inc()
                     return None
-                
-                self.domain_delays[domain] = time.time()
-                logger.debug(f"✅ Successfully fetched {url} ({len(response.text)} bytes)")
-                return response.text
-                
-            except requests.exceptions.Timeout:
-                logger.warning(f"⏰ Timeout on attempt {attempt + 1} for {url}")
-            except requests.exceptions.ConnectionError:
-                logger.warning(f"🔌 Connection error on attempt {attempt + 1} for {url}")
-            except requests.exceptions.HTTPError as e:
-                logger.warning(f"🚫 HTTP error on attempt {attempt + 1} for {url}: {e}")
-                # Check if response exists before accessing status_code
-                if hasattr(e, 'response') and e.response is not None and e.response.status_code in [404, 403, 401]:
-                    # Don't retry for client errors
-                    break
-            except requests.RequestException as e:
-                logger.warning(f"❌ Request failed on attempt {attempt + 1} for {url}: {e}")
-            
-            if attempt < max_retries - 1:
-                wait_time = 2 ** attempt
-                logger.debug(f"⏳ Waiting {wait_time} seconds before retry...")
-                time.sleep(wait_time)
-            else:
-                logger.error(f"💥 All attempts failed for {url}")
-                return None
 
     def extract_main_content(self, html: str, url: str) -> str:
         """Extract main content from HTML using BeautifulSoup"""
