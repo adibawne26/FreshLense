@@ -17,6 +17,14 @@ Production-ready web content monitoring platform featuring semantic change detec
 - Alertmanager Integration
 - Production-ready deployment
 
+## System Architecture
+
+The following diagram illustrates the complete FreshLense 2.0 architecture, including the application stack, CI/CD pipeline, observability stack, centralized logging, and monitoring infrastructure.
+
+<p align="center">
+  <img src="docs/images/system-architecture.png" alt="FreshLense 2.0 Architecture" width="1000">
+</p>
+
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
 ![React](https://img.shields.io/badge/React-19-61DAFB)
@@ -430,35 +438,89 @@ Production deployments also expose the Swagger UI for testing and exploring avai
 
 ---
 
-# Screenshots
+# 📸 Screenshots
 
 ## Dashboard
 
-> Dashboard screenshot coming soon.
+The central dashboard provides a real-time overview of monitored pages, detected changes, and quick actions for content monitoring.
+
+<p align="center">
+  <img src="docs/images/dashboard.png" alt="FreshLense Dashboard" width="100%">
+</p>
 
 ---
 
 ## Analytics
 
-> Analytics dashboard screenshot coming soon.
+Track page health, monitoring trends, alerts, and historical content changes through the analytics dashboard.
+
+<p align="center">
+  <img src="docs/images/analytics-1.png" alt="Analytics Dashboard" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/images/analytics-2.png" alt="Page Health Scores" width="100%">
+</p>
 
 ---
 
 ## Fact Verification
 
-> Fact verification screenshot coming soon.
+AI-powered fact verification extracts claims, evaluates confidence, and provides verification results with supporting context.
+
+<p align="center">
+  <img src="docs/images/fact-check.png" alt="Fact Verification" width="100%">
+</p>
 
 ---
 
 ## Grafana Monitoring
 
-> Grafana dashboard screenshot coming soon.
+Production monitoring powered by Prometheus and Grafana for application metrics, crawl statistics, and system observability.
+
+<p align="center">
+  <img src="docs/images/grafana-dashboard.png" alt="Grafana Dashboard" width="100%">
+</p>
 
 ---
 
 ## Jenkins Deployment
 
-> Jenkins pipeline screenshot coming soon.
+Automated Continuous Deployment pipeline powered by Jenkins.
+
+<p align="center">
+  <img src="docs/images/jenkins-pipeline.png" alt="Jenkins Pipeline" width="100%">
+</p>
+
+---
+
+## GitHub Actions CI
+
+Continuous Integration automatically builds and validates the application on every push.
+
+<p align="center">
+  <img src="docs/images/gh-actions.png" alt="GitHub Actions" width="100%">
+</p>
+
+---
+
+## Prometheus Targets
+
+Prometheus continuously monitors all infrastructure services and application endpoints.
+
+<p align="center">
+  <img src="docs/images/prometheus-targets.png" alt="Prometheus Targets" width="100%">
+</p>
+
+---
+
+## Centralized Logging (Loki)
+
+Loki and Promtail provide centralized log aggregation and exploration directly from Grafana.
+
+<p align="center">
+  <img src="docs/images/loki-logs.png" alt="Loki Logs" width="100%">
+</p>
 
 ---
 
