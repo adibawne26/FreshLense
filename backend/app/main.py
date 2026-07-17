@@ -293,17 +293,43 @@ Instrumentator().instrument(app).expose(app)
 # CORS middleware with explicit OPTIONS handling
 # ================================================
 
-# Get allowed origins from environment variable
-allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
-origins = [origin.strip() for origin in allowed_origins_str.split(",")]
+# ================================================
+# Robust CORS Configuration
+# ================================================
 
-# Always include chrome-extension for extension support
+DEFAULT_ORIGINS = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:3000",
+    "https://freshlense.xyz",
+]
+
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS")
+
+if not allowed_origins_str or not allowed_origins_str.strip():
+    logger.warning(
+        "ALLOWED_ORIGINS is missing or empty. Falling back to default origins."
+    )
+    origins = DEFAULT_ORIGINS.copy()
+else:
+    origins = [
+        origin.strip()
+        for origin in allowed_origins_str.split(",")
+        if origin.strip()
+    ]
+
 if "chrome-extension://*" not in origins:
     origins.append("chrome-extension://*")
 
-# Log the CORS configuration
+logger.info(f"CORS Origins: {origins}")
+
+if not origins:
+    raise RuntimeError(
+        "No valid CORS origins configured."
+    )
+
 print(f"🔧 CORS configured with origins: {origins}")
-logger.info(f"CORS allowed origins: {origins}")
 
 app.add_middleware(
     CORSMiddleware,
