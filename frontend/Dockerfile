@@ -23,6 +23,6 @@ RUN chown -R nginx:nginx /usr/share/nginx/html
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-CMD wget --spider -q http://localhost || exit 1
+CMD wget --spider -q http://127.0.0.1 || exit 1
 
 CMD ["nginx","-g","daemon off;"]
