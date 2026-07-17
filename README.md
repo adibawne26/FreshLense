@@ -1,215 +1,523 @@
-# 🎯 FreshLense - Intelligent Web Content Monitoring & Fact-Checking System
+# FreshLense
 
-![FreshLense Logo](https://img.shields.io/badge/FreshLense-Web%20Monitoring-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688?logo=fastapi)
-![React](https://img.shields.io/badge/React-18.2-61DAFB?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)
-![MongoDB](https://img.shields.io/badge/MongoDB-7.0-47A248?logo=mongodb)
+### Cloud-Native AI Content Intelligence Platform
+
+Production-ready web content monitoring platform featuring semantic change detection, AI-powered fact verification, end-to-end CI/CD, Prometheus monitoring, Grafana dashboards, centralized logging with Loki, and automated containerized deployments.
+
+## Highlights
+
+- AI-powered content monitoring
+- Semantic change detection
+- Intelligent fact verification
+- Multi-Factor Authentication (MFA)
+- Dockerized microservice architecture
+- GitHub Actions + Jenkins CI/CD
+- Prometheus + Grafana Monitoring
+- Loki + Promtail Centralized Logging
+- Alertmanager Integration
+- Production-ready deployment
+
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
+![React](https://img.shields.io/badge/React-19-61DAFB)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED)
+![MongoDB](https://img.shields.io/badge/MongoDB-7-47A248)
+![Jenkins](https://img.shields.io/badge/Jenkins-CD-D24939)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI-2088FF)
+![Prometheus](https://img.shields.io/badge/Prometheus-Monitoring-E6522C)
+![Grafana](https://img.shields.io/badge/Grafana-Dashboards-F46800)
+![Loki](https://img.shields.io/badge/Loki-Logging-0A84FF)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-A sophisticated web content monitoring platform that automatically tracks changes, fact-checks technical content, and provides intelligent version comparison for blogs, documentation, and information websites.
+---
 
-## ✨ Features
+## Table of Contents
 
-### 🔍 **Smart Fact-Checking**
-- **AI-Powered Verification**: Automatically verifies technical claims using OpenAI and SERP API
-- **Multi-Type Analysis**: Supports version info, performance claims, security assertions, and compatibility statements
-- **Confidence Scoring**: Each verification includes a confidence percentage and detailed explanation
+- [Overview](#overview)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [System Architecture](#system-architecture)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Monitoring & Observability](#monitoring--observability)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [API Overview](#api-overview)
+- [Screenshots](#screenshots)
+- [Roadmap](#roadmap)
+- [Author](#author)
+- [License](#license)
 
-### 📊 **Version Comparison**
-- **Change Detection**: Track modifications between different versions of web pages
-- **Enhanced Diff Viewer**: Side-by-side comparison with syntax highlighting
-- **Change Metrics**: Words added/removed, similarity scores, and detailed change summaries
+---
 
-### 🔄 **Content Monitoring**
-- **Automatic Crawling**: Scheduled monitoring of tracked websites
-- **Version History**: Complete archive of all content versions
-- **Change Alerts**: Email notifications via Resend when content changes
+## Overview
 
-### 🛡️ **Security & Management**
-- **Email-Based MFA**: Secure authentication with multi-factor verification
-- **Dashboard**: Centralized management of all monitored pages
-- **Direct Input**: Manual content analysis for non-crawlable pages
+FreshLense is a production-ready AI-powered web content monitoring platform that continuously tracks websites for meaningful content changes, performs intelligent fact verification, maintains historical versions, and provides enterprise-grade observability through a complete DevOps monitoring stack.
 
-### 📱 **User Experience**
-- **Modern UI**: Beautiful React interface with Tailwind CSS
-- **Real-time Updates**: Live notifications and status updates
-- **Responsive Design**: Works seamlessly on desktop and mobile
+Unlike traditional website monitoring tools that trigger alerts for every HTML modification, FreshLense analyses semantic content changes, helping users focus on updates that genuinely matter.
 
-## 🏗️ Architecture
+The project showcases a complete software engineering workflow, combining modern full-stack development with DevOps best practices, including automated CI/CD, containerization, centralized logging, metrics collection, visualization, and alerting.
+
+---
+
+## Features
+
+- Intelligent web content monitoring
+- Semantic change detection
+- Automated version history
+- AI-generated content summaries
+- Fact verification engine
+- Manual and scheduled crawling
+- Analytics dashboard
+- Multi-Factor Authentication (MFA)
+- Email notification support
+- RESTful API
+- Dockerized deployment
+- CI/CD using GitHub Actions & Jenkins
+- Prometheus metrics
+- Grafana dashboards
+- Loki centralized logging
+- Promtail log shipping
+- Alertmanager integration
+- Node Exporter system monitoring
+
+---
+
+## Technology Stack
+
+### Frontend
+
+- React
+- TypeScript
+- Axios
+
+### Backend
+
+- FastAPI
+- Python
+- BeautifulSoup
+- Requests
+- JWT Authentication
+
+### Database
+
+- MongoDB
+
+### AI
+
+- OpenAI API
+- Semantic Content Analysis
+
+### DevOps
+
+- Docker
+- Docker Compose
+- GitHub Actions
+- Jenkins
+- Docker Hub
+
+### Observability
+
+- Prometheus
+- Grafana
+- Loki
+- Promtail
+- Alertmanager
+- Node Exporter
+
+---
+
+# System Architecture
+
+```text
+                        ┌─────────────────────────────┐
+                        │           User              │
+                        └──────────────┬──────────────┘
+                                       │
+                                       ▼
+                        ┌─────────────────────────────┐
+                        │      React Frontend         │
+                        └──────────────┬──────────────┘
+                                       │ REST API
+                                       ▼
+                        ┌─────────────────────────────┐
+                        │      FastAPI Backend        │
+                        └───────┬───────────┬─────────┘
+                                │           │
+                                │           │
+                                ▼           ▼
+                     ┌───────────────┐  ┌───────────────┐
+                     │   MongoDB     │  │ Web Crawler   │
+                     └───────────────┘  └───────┬───────┘
+                                                │
+                                                ▼
+                                         Target Websites
+
+──────────────────────────────────────────────────────────────────────────────
+
+               Prometheus ─────► Grafana Dashboards
+
+Docker Logs ─► Promtail ─► Loki ─► Grafana Logs
+
+GitHub ─► GitHub Actions ─► Docker Hub ─► Jenkins ─► Deployment
+```
+
+FreshLense follows a modern cloud-native architecture where the React frontend communicates with a FastAPI backend that manages authentication, content monitoring, versioning, analytics, and fact verification. Monitoring, centralized logging, and CI/CD are integrated as first-class components to provide production-grade observability and automated deployments.
+
+---
+
+# CI/CD Pipeline
+
+FreshLense uses a fully automated Continuous Integration and Continuous Deployment (CI/CD) pipeline to ensure reliable, repeatable, and production-ready deployments.
+
+```text
+Developer
+    │
+    ▼
+Git Commit
+    │
+    ▼
+GitHub Repository
+    │
+    ▼
+GitHub Actions (Continuous Integration)
+    │
+    ├── Checkout Repository
+    ├── Build Backend Image
+    ├── Build Frontend Image
+    ├── Run Docker Build Validation
+    └── Push Images to Docker Hub
+    │
+    ▼
+Docker Hub
+    │
+    ▼
+GitHub Webhook
+    │
+    ▼
+Jenkins (Continuous Deployment)
+    │
+    ├── Pull Latest Images
+    ├── Stop Existing Containers
+    ├── Deploy Updated Containers
+    ├── Run Health Checks
+    └── Verify Deployment
+    │
+    ▼
+Production Environment
+```
+
+### CI Tools
+
+- GitHub Actions for Continuous Integration
+- Docker Hub as the Container Registry
+- Jenkins for Continuous Deployment
+- GitHub Webhooks for automatic deployment triggers
+
+Every code push automatically builds, validates, publishes, and deploys the latest application version with minimal manual intervention.
+
+---
+
+# Monitoring & Observability
+
+FreshLense includes a production-grade observability stack for monitoring application health, infrastructure performance, logs, and deployment status.
+
+## Monitoring Stack
+
+| Component | Purpose |
+|-----------|---------|
+| Prometheus | Metrics collection |
+| Grafana | Visualization & Dashboards |
+| Loki | Centralized log storage |
+| Promtail | Log collection |
+| Alertmanager | Alert routing & notifications |
+| Node Exporter | Host-level metrics |
+
+## Custom Metrics
+
+FreshLense exposes custom Prometheus metrics for crawler performance, including:
+
+- Total Crawl Requests
+- Successful Crawls
+- Failed Crawls
+- Crawl Duration Histogram
+
+These metrics enable real-time monitoring of crawler health and performance through Grafana dashboards.
+
+## Logging Pipeline
+
+```text
+Backend Logs
+      │
+      ▼
+ Docker Containers
+      │
+      ▼
+   Promtail
+      │
+      ▼
+     Loki
+      │
+      ▼
+   Grafana Logs
+```
+
+The monitoring stack provides complete visibility into application behaviour, system performance, and operational health.
+
+---
+
+# Project Structure
+
+```text
 FreshLense/
-├── 📁 backend/ # FastAPI Backend
-│ ├── app/
-│ │ ├── routers/ # API Endpoints
-│ │ ├── schemas/ # Pydantic Models
-│ │ ├── services/ # Business Logic
-│ │ └── utils/ # Utilities
-│ ├── database.py # MongoDB Connection
-│ ├── main.py # FastAPI Application
-│ └── requirements.txt # Python Dependencies
-├── 📁 frontend/ # React Frontend
-│ ├── src/
-│ │ ├── components/ # Reusable Components
-│ │ ├── pages/ # Page Components
-│ │ ├── services/ # API Services
-│ │ ├── types/ # TypeScript Definitions
-│ │ └── contexts/ # React Contexts
-│ ├── public/ # Static Assets
-│ └── package.json # Node.js Dependencies
-├── 📁 chrome_extension/ # Browser Extension
-├── 📄 README.md # This File
+│
+├── .github/                     # GitHub Actions workflows
+│
+├── backend/
+│   ├── app/
+│   │   ├── routers/             # API routes
+│   │   ├── schemas/             # Pydantic schemas
+│   │   ├── services/            # Business logic
+│   │   ├── utils/               # Utility functions
+│   │   ├── crawler.py
+│   │   ├── database.py
+│   │   ├── main.py
+│   │   ├── metrics.py
+│   │   ├── models.py
+│   │   └── scheduler.py
+│   │
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── requirements-prod.txt
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── contexts/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── types/
+│   │   ├── App.tsx
+│   │   └── index.tsx
+│   │
+│   ├── Dockerfile
+│   ├── Dockerfile.prod
+│   ├── nginx.conf
+│   └── package.json
+│
+├── chrome_extension/            # Browser extension
+│
+├── jenkins/                     # Jenkins configuration
+│
+├── monitoring/
+│   ├── alertmanager/
+│   │   └── alertmanager.yml
+│   ├── grafana/
+│   ├── loki/
+│   │   └── loki-config.yml
+│   ├── prometheus.yml
+│   ├── promtail/
+│   │   └── promtail-config.yml
+│   └── rules/
+│       └── alerts.yml
+│
+├── docker-compose.yaml
+├── docker-compose.prod.yaml
+├── Dockerfile.jenkins
+├── Jenkinsfile
+├── .env
+├── .env.dev
+├── README.md
+└── LICENSE
+```
 
+FreshLense follows a modular architecture that separates the application, monitoring stack, deployment configuration, and browser extension into independent components. This organization improves maintainability, simplifies deployment, and allows each service to evolve independently.
 
-## 🚀 Quick Start
+---
 
-### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- MongoDB 7.0+
-- API Keys (OpenAI, SERP API, Resend)
+# Installation
 
-### Backend Setup
+## Clone the Repository
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/freshlense.git
-cd freshlense/backend
+git clone https://github.com/<your-username>/FreshLense.git
 
-# Create virtual environment
-python -m venv venv
+cd FreshLense
+```
 
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On Mac/Linux:
-source venv/bin/activate
+---
 
-# Install dependencies
-pip install -r requirements.txt
+## Configure Environment Variables
 
-# Configure environment
-cp .env.example .env
-# Edit .env with your API keys and settings
+Create the required environment file.
 
-# Run the backend
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```bash
+cp .env.example .env.dev
+```
 
+Update the required variables before starting the application.
 
-##Frontend Setup
+---
 
-bash
-# Navigate to frontend directory
-cd ../frontend
+## Start the Application
 
-# Install dependencies
-npm install
+```bash
+docker compose up --build
+```
 
-# Configure environment
-cp .env.example .env.local
-# Edit .env.local with your backend URL
+The following services will be available:
 
-# Start development server
-npm start
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost |
+| Backend API | http://localhost:8000 |
+| Swagger UI | http://localhost:8000/docs |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3000 |
+| Alertmanager | http://localhost:9093 |
 
+---
 
-##Backend (.env)
-# ========= DATABASE =========
-MONGO_URI=mongodb://localhost:27017
-DATABASE_NAME=freshlense
+## Stop the Application
 
-# ========= JWT AUTHENTICATION =========
-SECRET_KEY=your-super-secret-jwt-key-here-change-in-production
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
+```bash
+docker compose down
+```
+---
 
-# ========= FRONTEND URLS =========
-FRONTEND_URL=http://localhost:3000
+# Environment Variables
 
-# ========= EXTERNAL APIS =========
-SERPAPI_API_KEY=your-serpapi-api-key-here
+The backend uses the following environment variables.
 
-# ========= EMAIL SERVICE (RESEND) =========
-RESEND_API_KEY=re_your-resend-api-key-here
-RESEND_FROM_EMAIL=noreply@yourdomain.com
-EMAIL_ENABLED=true
+| Variable | Description |
+|-----------|-------------|
+| MONGO_URI | MongoDB connection string |
+| OPENAI_API_KEY | OpenAI API Key |
+| RESEND_API_KEY | Email notification service |
+| REACT_APP_BACKEND_URL | Backend API URL |
+| ALLOWED_ORIGINS | Allowed frontend origins |
+| EMAIL_ENABLED | Enable email notifications |
+| AI_SUMMARIES_ENABLED | Enable AI-generated summaries |
 
-# ========= APPLICATION SETTINGS =========
-APP_NAME=FreshLense
-ENVIRONMENT=development
-DEBUG=true
+---
 
-# ========= SECURITY SETTINGS =========
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
+# API Overview
 
+FreshLense exposes a RESTful API built with FastAPI for authentication, page management, crawling, fact verification, analytics, and monitoring.
 
-##Frontend (.env.local)
-# ========= API CONFIGURATION =========
-REACT_APP_BACKEND_URL=http://localhost:8000
-REACT_APP_ENVIRONMENT=development
+| Category | Endpoint |
+|-----------|----------|
+| Authentication | `/auth/login` |
+| Authentication | `/auth/register` |
+| Authentication | `/auth/validate-token` |
+| User | `/user/profile` |
+| Pages | `/api/pages` |
+| Crawling | `/api/crawl/{page_id}` |
+| Fact Check | `/fact-check` |
+| Analytics | `/analytics` |
+| Health | `/health` |
+| Metrics | `/metrics` |
 
+Interactive API documentation is automatically generated by FastAPI.
 
-##📚 API Documentation
-Once the backend is running, access the interactive API documentation:
+```
+http://localhost:8000/docs
+```
 
-Swagger UI: http://localhost:8000/docs
+Production deployments also expose the Swagger UI for testing and exploring available endpoints.
 
-ReDoc: http://localhost:8000/redoc
+---
 
-Key Endpoints
-Method	Endpoint	Description
-POST	/api/auth/register	User registration
-POST	/api/auth/login	User login
-POST	/api/auth/verify-mfa	MFA verification
-GET	/api/fact-check/pages	Get tracked pages
-POST	/api/fact-check/check	Fact-check content
-POST	/api/fact-check/compare	Compare versions
-GET	/api/fact-check/pages/{id}/versions	Get page versions
+# Screenshots
 
+## Dashboard
 
-##🤖 How It Works
+> Dashboard screenshot coming soon.
 
-##1. Content Crawling
-a.Scheduler automatically fetches content from tracked URLs
-b.Stores HTML and text versions in MongoDB
-c.Detects changes between versions
+---
 
-##2. Fact-Checking Pipeline
-a. Extract claims from content
-b. Categorize claims (version, performance, security, etc.)
-c. Query external APIs for verification
-d. Analyze results and assign confidence scores
-e. Generate detailed explanations
+## Analytics
 
-##3. Change Detection
-a.Uses advanced diff algorithms to compare versions
-b.Highlights additions, deletions, and modifications
-c.Calculates similarity metrics and change summaries
+> Analytics dashboard screenshot coming soon.
 
-##4. Notification System
-a.Sends email alerts via Resend when content changes
-b.Includes fact-check results and change summaries
-c.Configurable notification preferences
+---
 
+## Fact Verification
 
-##🔍 Use Cases
-##🔧 Technical Documentation
-Monitor API documentation for breaking changes
-Verify version compatibility claims
-Track library/framework updates
+> Fact verification screenshot coming soon.
 
-##📝 Blogs & Articles
-Fact-check technical tutorials
-Monitor editorial changes
-Detect misinformation
+---
 
-##🏢 Corporate Websites
-Track policy/document updates
-Monitor press releases
-Ensure regulatory compliance
+## Grafana Monitoring
 
-##🎓 Educational Content
-Verify course material accuracy
-Track syllabus updates
-Monitor research publications
+> Grafana dashboard screenshot coming soon.
 
-# webhook test
+---
+
+## Jenkins Deployment
+
+> Jenkins pipeline screenshot coming soon.
+
+---
+
+# Roadmap
+
+## Completed
+
+- [x] React Frontend
+- [x] FastAPI Backend
+- [x] MongoDB Integration
+- [x] Intelligent Web Crawling
+- [x] AI Content Summaries
+- [x] Fact Verification
+- [x] JWT Authentication
+- [x] Multi-Factor Authentication (MFA)
+- [x] Docker
+- [x] Docker Compose
+- [x] GitHub Actions CI
+- [x] Jenkins CD
+- [x] Docker Hub Integration
+- [x] GitHub Webhooks
+- [x] Container Health Checks
+- [x] Prometheus Monitoring
+- [x] Grafana Dashboards
+- [x] Loki Centralized Logging
+- [x] Promtail Log Collection
+- [x] Alertmanager Integration
+- [x] Node Exporter Monitoring
+- [x] End-to-End CI/CD Pipeline
+- [x] End-to-End Observability Stack
+
+## Upcoming
+
+- [ ] Complete professional project documentation
+- [ ] Cloud deployment (AWS/GCP)
+- [ ] Kubernetes deployment
+- [ ] Helm Charts
+- [ ] Terraform Infrastructure as Code
+- [ ] Distributed crawling
+- [ ] Multi-node monitoring
+
+---
+
+# Author
+
+**Aditya Bawne**
+
+Bachelor of Engineering (Information Technology)
+
+Passionate about DevOps, Cloud Computing, Automation, Site Reliability Engineering, and AI-powered applications.
+
+- GitHub: https://github.com/adibawne26
+- LinkedIn: *https://www.linkedin.com/in/aditya-bawne/*
+
+---
+
+# License
+
+This project is licensed under the MIT License.
+
+See the LICENSE file for more information.
+
