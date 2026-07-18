@@ -26,94 +26,41 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to EC2') {
             steps {
-                sh '''
-                    set -e
+                sshagent(credentials: ['ec2-deploy-key']) {
 
-                    cd "$WORKSPACE"
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ubuntu@16.112.69.27 << 'EOF'
 
-                    cat > .env <<EOF
-MONGO_URI=mongodb://mongodb:27017/freshlense
-REACT_APP_BACKEND_URL=http://backend:8000
-OPENAI_API_KEY=
-RESEND_API_KEY=
-EOF
+                        cd ~/FreshLense
 
-                    echo "===== Docker Compose Version ====="
-                    docker compose version
+                        docker compose -f docker-compose.ec2.yaml pull
 
-                    echo "===== Compose Configuration ====="
-                    docker compose \
-                        --project-directory "$WORKSPACE" \
-                        -f "$COMPOSE_FILE" config >/dev/null
+                        docker compose -f docker-compose.ec2.yaml up -d
 
-                    docker compose \
-                        --project-directory "$WORKSPACE" \
-                        -p "$PROJECT_NAME" \
-                        -f "$COMPOSE_FILE" \
-                        down --remove-orphans || true
+                        docker image prune -f
 
-                    docker compose \
-                        --project-directory "$WORKSPACE" \
-                        -p "$PROJECT_NAME" \
-                        -f "$COMPOSE_FILE" \
-                        pull backend frontend
-
-                    docker compose \
-                        --project-directory "$WORKSPACE" \
-                        -p "$PROJECT_NAME" \
-                        -f "$COMPOSE_FILE" \
-                        build prometheus
-
-                    docker compose \
-                        --project-directory "$WORKSPACE" \
-                        -p "$PROJECT_NAME" \
-                        -f "$COMPOSE_FILE" \
-                        up -d
-                '''
+                        EOF
+                    '''
+                }
             }
         }
 
         stage('Verify Deployment') {
-            options {
-                timeout(time: 5, unit: 'MINUTES')
-            }
-
             steps {
-                sh '''
-                    wait_for_health () {
-                        CONTAINER=$1
+                sshagent(credentials: ['ec2-deploy-key']) {
 
-                        while true
-                        do
-                            STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}running{{end}}' "$CONTAINER" 2>/dev/null || true)
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ubuntu@16.112.69.27 << 'EOF'
 
-                            echo "$CONTAINER : $STATUS"
+                        docker ps
 
-                            if [ "$STATUS" = "healthy" ] || [ "$STATUS" = "running" ]; then
-                                break
-                            fi
+                        curl http://localhost:8000/health
 
-                            sleep 5
-                        done
-                    }
-
-                    wait_for_health freshlense-mongodb
-                    wait_for_health freshlense-backend
-                    wait_for_health freshlense-frontend
-
-                    echo ""
-                    echo "======================================"
-                    echo "FreshLense Deployment Successful"
-                    echo "======================================"
-
-                    docker compose \
-                        --project-directory "$WORKSPACE" \
-                        -p "$PROJECT_NAME" \
-                        -f "$COMPOSE_FILE" \
-                        ps
-                '''
+                        EOF
+                    '''
+                }
             }
         }
     }
