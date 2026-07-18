@@ -7,31 +7,24 @@ This replaces the dangerous TTL index approach.
 from datetime import datetime
 import logging
 from typing import Optional, List, Dict, Any
+import app.database as database
 
 logger = logging.getLogger(__name__)
 
 class MFACleanupService:
     """Safely clean up expired MFA codes without deleting users"""
     
-    def __init__(self, db=None):
-        """Initialize with database connection"""
-        self.db = db
-    
-    def set_database(self, db):
-        """Set database connection (can be called later)"""
-        self.db = db
-    
     def cleanup_expired_mfa_codes(self) -> int:
         """
         Remove expired MFA codes from active users.
         Returns number of users cleaned.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
             logger.error("Database connection not available")
             return 0
         
         try:
-            result = self.db.users.update_many(
+            result = database.db.users.update_many(
                 {
                     "mfa_code": {"$ne": None},
                     "mfa_code_expires": {"$lt": datetime.utcnow()},
@@ -69,7 +62,7 @@ class MFACleanupService:
         Clean expired MFA code for a specific user.
         Returns True if cleaned, False otherwise.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
             logger.error("Database connection not available")
             return False
         
@@ -80,7 +73,7 @@ class MFACleanupService:
             if isinstance(user_id, str):
                 user_id = ObjectId(user_id)
             
-            result = self.db.users.update_one(
+            result = database.db.users.update_one(
                 {
                     "_id": user_id,
                     "mfa_code": {"$ne": None},
@@ -118,12 +111,12 @@ class MFACleanupService:
         Get list of users with expired MFA codes.
         Useful for monitoring or manual intervention.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
             logger.error("Database connection not available")
             return []
         
         try:
-            users = self.db.users.find(
+            users = database.db.users.find(
                 {
                     "mfa_code": {"$ne": None},
                     "mfa_code_expires": {"$lt": datetime.utcnow()},
@@ -157,38 +150,38 @@ class MFACleanupService:
         Get statistics about MFA cleanup.
         Useful for monitoring dashboard.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
             return {"error": "Database not available"}
         
         try:
             # Count users with active MFA codes
-            total_with_mfa = self.db.users.count_documents({
+            total_with_mfa = database.db.users.count_documents({
                 "mfa_code": {"$ne": None},
                 "is_deleted": {"$ne": True}
             })
             
             # Count users with expired MFA codes
-            expired_mfa = self.db.users.count_documents({
+            expired_mfa = database.db.users.count_documents({
                 "mfa_code": {"$ne": None},
                 "mfa_code_expires": {"$lt": datetime.utcnow()},
                 "is_deleted": {"$ne": True}
             })
             
             # Count users with valid MFA codes
-            valid_mfa = self.db.users.count_documents({
+            valid_mfa = database.db.users.count_documents({
                 "mfa_code": {"$ne": None},
                 "mfa_code_expires": {"$gte": datetime.utcnow()},
                 "is_deleted": {"$ne": True}
             })
             
             # Get MFA coverage
-            total_active_users = self.db.users.count_documents({
+            total_active_users = database.db.users.count_documents({
                 "is_deleted": {"$ne": True}
             })
             
             mfa_coverage = 0
             if total_active_users > 0:
-                users_with_mfa_enabled = self.db.users.count_documents({
+                users_with_mfa_enabled = database.db.users.count_documents({
                     "mfa_enabled": True,
                     "is_deleted": {"$ne": True}
                 })
@@ -228,7 +221,7 @@ class MFACleanupService:
             logger.info(log_message)
             
             # Optionally log to audit collection if it exists
-            if self.db is not None and hasattr(self.db, 'audit_logs'):  # ✅ FIXED: Use "is not None"
+            if database.db is not None and hasattr(database.db, "audit_logs"):  # ✅ FIXED: Use "is not None"
                 audit_log = {
                     "timestamp": datetime.utcnow(),
                     "operation": operation,
@@ -239,7 +232,7 @@ class MFACleanupService:
                     "ip_address": None
                 }
                 
-                self.db.audit_logs.insert_one(audit_log)
+                database.db.audit_logs.insert_one(audit_log)
                 
         except Exception as e:
             # Don't fail cleanup if logging fails

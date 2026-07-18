@@ -7,19 +7,12 @@ from datetime import datetime, timedelta
 import logging
 from typing import Optional, Dict, Any, List
 import traceback
+import app.database as database
 
 logger = logging.getLogger(__name__)
 
 class AuditService:
     """Track all user-related operations for security and debugging"""
-    
-    def __init__(self, db=None):
-        """Initialize with database connection"""
-        self.db = db
-    
-    def set_database(self, db):
-        """Set database connection (can be called later)"""
-        self.db = db
     
     def log_event(self, operation: str, user_id: str, 
                  performed_by: str = "system", details: str = "", 
@@ -28,14 +21,14 @@ class AuditService:
         Log any audit event.
         Returns True if logged successfully.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not database.db"
             logger.warning(f"AUDIT SKIPPED: {operation} - User: {user_id} (DB not available)")
             return False
         
         try:
             # Ensure audit_logs collection exists
-            if "audit_logs" not in self.db.list_collection_names():
-                self.db.create_collection("audit_logs")
+            if "audit_logs" not in database.db.list_collection_names():
+                database.db.create_collection("audit_logs")
             
             # Prepare audit log entry
             audit_log = {
@@ -50,7 +43,7 @@ class AuditService:
             }
             
             # Insert into audit logs
-            result = self.db.audit_logs.insert_one(audit_log)
+            result = database.db.audit_logs.insert_one(audit_log)
             
             # Log sensitive operations to console for immediate visibility
             sensitive_operations = [
@@ -170,7 +163,7 @@ class AuditService:
         Retrieve audit logs with filtering options.
         Useful for admin dashboard or debugging.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not database.db"
             logger.error("Database connection not available")
             return []
         
@@ -191,7 +184,7 @@ class AuditService:
                     query["timestamp"] = {"$lte": end_date}
             
             # Execute query
-            logs = self.db.audit_logs.find(query).sort("timestamp", -1).limit(limit)
+            logs = database.db.audit_logs.find(query).sort("timestamp", -1).limit(limit)
             logs_list = list(logs)
             
             # Convert ObjectId to string and format dates
@@ -213,7 +206,7 @@ class AuditService:
         Get summary of user activity for a specific user.
         Useful for user profile or admin review.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not database.db"
             return {"error": "Database not available"}
         
         try:
@@ -221,7 +214,7 @@ class AuditService:
             start_date = end_date - timedelta(days=days)
             
             # Get logs for user in date range
-            logs = self.db.audit_logs.find({
+            logs = database.db.audit_logs.find({
                 "user_id": user_id,
                 "timestamp": {"$gte": start_date, "$lte": end_date}
             })
@@ -268,7 +261,7 @@ class AuditService:
         Generate a system health report from audit logs.
         Useful for monitoring and alerts.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not database.db"
             return {"error": "Database not available"}
         
         try:
@@ -276,25 +269,25 @@ class AuditService:
             start_date = end_date - timedelta(days=days)
             
             # Get failed login attempts
-            failed_logins = self.db.audit_logs.count_documents({
+            failed_logins = database.db.audit_logs.count_documents({
                 "operation": "LOGIN_FAILED",
                 "timestamp": {"$gte": start_date, "$lte": end_date}
             })
             
             # Get successful logins
-            successful_logins = self.db.audit_logs.count_documents({
+            successful_logins = database.db.audit_logs.count_documents({
                 "operation": "LOGIN_SUCCESS",
                 "timestamp": {"$gte": start_date, "$lte": end_date}
             })
             
             # Get user registrations
-            new_registrations = self.db.audit_logs.count_documents({
+            new_registrations = database.db.audit_logs.count_documents({
                 "operation": "USER_REGISTERED",
                 "timestamp": {"$gte": start_date, "$lte": end_date}
             })
             
             # Get security events
-            security_events = self.db.audit_logs.count_documents({
+            security_events = database.db.audit_logs.count_documents({
                 "operation": {"$in": ["USER_DELETION_ATTEMPT", "USER_SOFT_DELETED"]},
                 "timestamp": {"$gte": start_date, "$lte": end_date}
             })
@@ -352,13 +345,13 @@ class AuditService:
         Clean up audit logs older than specified days.
         Returns number of logs deleted.
         """
-        if self.db is None:  # ✅ FIXED: Use "is None" instead of "not self.db"
+        if database.db is None:  # ✅ FIXED: Use "is None" instead of "not database.db"
             return 0
         
         try:
             cutoff_date = datetime.utcnow() - timedelta(days=days_to_keep)
             
-            result = self.db.audit_logs.delete_many({
+            result = database.db.audit_logs.delete_many({
                 "timestamp": {"$lt": cutoff_date}
             })
             
