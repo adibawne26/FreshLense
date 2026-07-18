@@ -3,9 +3,10 @@ import axios, { AxiosError, AxiosHeaders, AxiosResponse } from 'axios';
 import { MFALoginResponse } from '../types/mfa';
 
 // ✅ FIXED: Use environment variable with fallback to localhost for development
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL 
-  ? `${process.env.REACT_APP_BACKEND_URL}/api` 
-  : 'http://localhost:8000/api';
+const API_BASE_URL =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:8000/api"
+    : "/api";
 
 // Log the API URL being used (helps with debugging)
 console.log(`🔧 [API] Configured to use: ${API_BASE_URL}`);
