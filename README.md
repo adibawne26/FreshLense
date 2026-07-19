@@ -1439,7 +1439,7 @@ FreshLense was built as a production-grade portfolio project to demonstrate mode
 ### Connect with me
 
 - **GitHub:** https://github.com/adibawne26
-- **LinkedIn:** https://www.linkedin.com/in/aditya-bawne/
+- **LinkedIn:** https://www.linkedin.com/in/aditya-bawane37/
 - **Email:** aditya374.pb@gmail.com
 
 ---
