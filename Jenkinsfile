@@ -29,20 +29,15 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sshagent(credentials: ['ec2-deploy-key']) {
-
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@18.60.255.248 << 'EOF'
+        ssh -o StrictHostKeyChecking=no ubuntu@18.60.255.248 << 'EOF'
+        cd ~/FreshLense
 
-                        cd ~/FreshLense
-
-                        docker compose -f docker-compose.ec2.yaml pull
-
-                        docker compose -f docker-compose.ec2.yaml up -d
-
-                        docker image prune -f
-
-                        EOF
-                    '''
+        docker compose -f docker-compose.ec2.yaml pull
+        docker compose -f docker-compose.ec2.yaml up -d
+        docker image prune -f
+        EOF
+        '''
                 }
             }
         }
@@ -50,16 +45,12 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sshagent(credentials: ['ec2-deploy-key']) {
-
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@18.60.255.248 << 'EOF'
-
-                        docker ps
-
-                        curl http://localhost:8000/health
-
-                        EOF
-                    '''
+        ssh -o StrictHostKeyChecking=no ubuntu@18.60.255.248 << 'EOF'
+        docker ps
+        curl http://localhost:8000/health
+        EOF
+        '''
                 }
             }
         }
