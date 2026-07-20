@@ -422,6 +422,8 @@ async def create_page(
 async def delete_page(page_id: str, current_user = Depends(get_current_user)):
     """Delete a tracked page"""
     user_id = get_user_id_from_current_user(current_user)
+
+    logger.error(f"DEBUG user_id: {user_id}")
     
     try:
         ObjectId(page_id)

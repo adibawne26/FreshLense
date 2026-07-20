@@ -940,11 +940,15 @@ def create_tracked_page(page_data: dict, user_id):
     
     if isinstance(user_id, str):
         user_id = ObjectId(user_id)
+
+    logger.error(f"DB DEBUG user_id={user_id} type={type(user_id)}")
     
     user = users_collection.find_one({
         "_id": user_id,
         "is_deleted": {"$ne": True}
     })
+
+    logger.error(f"DB DEBUG user={user}")
     
     if not user:
         return None
@@ -970,12 +974,19 @@ def create_tracked_page(page_data: dict, user_id):
             "notification_threshold": 0.3
         }
     }
+
+    logger.error(f"DB DEBUG inserting page={page_doc}")
     
     try:
         result = pages_collection.insert_one(page_doc)
         page_doc["_id"] = result.inserted_id
+        logger.error(f"DB DEBUG inserted page={page_doc}")
         return page_doc
     except DuplicateKeyError:
+        logger.exception("DB DEBUG DuplicateKeyError")
+        return None
+    except Exception:
+        logger.exception("DB DEBUG Unexpected exception while inserting page")
         return None
 
 
