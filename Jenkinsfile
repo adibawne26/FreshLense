@@ -31,7 +31,7 @@ pipeline {
                 sshagent(credentials: ['ec2-deploy-key']) {
 
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@16.112.69.27 << 'EOF'
+                        ssh -o StrictHostKeyChecking=no ubuntu@18.60.255.248 << 'EOF'
 
                         cd ~/FreshLense
 
@@ -52,7 +52,7 @@ pipeline {
                 sshagent(credentials: ['ec2-deploy-key']) {
 
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@16.112.69.27 << 'EOF'
+                        ssh -o StrictHostKeyChecking=no ubuntu@18.60.255.248 << 'EOF'
 
                         docker ps
 
