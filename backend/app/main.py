@@ -397,7 +397,10 @@ async def create_page(
     }
     
     new_page = create_tracked_page(page_data, user_id)
-    
+
+    logger.error(f"DEBUG new_page: {new_page}")
+    logger.error(f"DEBUG type(new_page): {type(new_page)}")
+
     # Schedule page
     try:
         if asyncio.iscoroutinefunction(monitoring_scheduler.schedule_page):
@@ -408,7 +411,12 @@ async def create_page(
     except Exception as e:
         logger.error(f"Failed to schedule page immediately after creation: {e}")
 
-    return normalize_doc(new_page)
+    normalized = normalize_doc(new_page)
+
+    logger.error(f"DEBUG normalized: {normalized}")
+    logger.error(f"DEBUG normalized type: {type(normalized)}")
+
+    return normalized
 
 @app.delete("/api/pages/{page_id}")
 async def delete_page(page_id: str, current_user = Depends(get_current_user)):
