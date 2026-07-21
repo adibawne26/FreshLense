@@ -30,7 +30,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['ec2-deploy-key']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@18.60.255.248 "
+                        ssh -o StrictHostKeyChecking=no ubuntu@40.192.105.6 "
                             cd ~/FreshLense &&
                             docker compose -f docker-compose.ec2.yaml pull &&
                             docker compose -f docker-compose.ec2.yaml up -d &&
@@ -45,7 +45,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['ec2-deploy-key']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@18.60.255.248 "
+                        ssh -o StrictHostKeyChecking=no ubuntu@40.192.105.6 "
                             docker ps &&
                             curl http://localhost:8000/health
                         "
