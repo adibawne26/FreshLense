@@ -79,8 +79,8 @@ services:
       - "9090:9090"
 
     volumes:
-      - /home/adibawne37/jenkins_home/workspace/FreshLense-CD/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - /home/adibawne37/jenkins_home/workspace/FreshLense-CD/monitoring/rules:/etc/prometheus/rules:ro
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/rules:/etc/prometheus/rules:ro
 
     depends_on:
       backend:

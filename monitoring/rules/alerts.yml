@@ -31,7 +31,20 @@ groups:
           description: "Memory usage has been above 80% for more than 2 minutes."
 
       - alert: LowDiskSpace
-        expr: (100 - ((node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} * 100) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})) > 85
+        expr: (
+                100 -
+                (
+                  node_filesystem_avail_bytes{
+                    fstype!~"tmpfs|overlay",
+                    mountpoint!~"/etc/hosts|/etc/hostname|/etc/resolv.conf"
+                  } * 100
+                  /
+                  node_filesystem_size_bytes{
+                    fstype!~"tmpfs|overlay",
+                    mountpoint!~"/etc/hosts|/etc/hostname|/etc/resolv.conf"
+                  }
+                )
+              ) > 85
         for: 5m
         labels:
           severity: warning
