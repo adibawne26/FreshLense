@@ -396,10 +396,7 @@ async def create_page(
         "check_interval_minutes": page.check_interval_minutes
     }
     
-    new_page = create_tracked_page(page_data, user_id)
-
-    logger.error(f"DEBUG new_page: {new_page}")
-    logger.error(f"DEBUG type(new_page): {type(new_page)}")
+    new_page = create_tracked_page(page_data, user_id)    
 
     # Schedule page
     try:
@@ -412,9 +409,6 @@ async def create_page(
         logger.error(f"Failed to schedule page immediately after creation: {e}")
 
     normalized = normalize_doc(new_page)
-
-    logger.error(f"DEBUG normalized: {normalized}")
-    logger.error(f"DEBUG normalized type: {type(normalized)}")
 
     return normalized
 
