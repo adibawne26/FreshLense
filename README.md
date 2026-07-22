@@ -25,7 +25,9 @@
 
 </p>
 
-**Live App:** https://app.freshlense.xyz · **API Docs:** https://app.freshlense.xyz/api/docs · **Health:** https://app.freshlense.xyz/api/health
+**Live App:** https://app.freshlense.xyz
+**API Docs:** https://app.freshlense.xyz/api/docs
+**Health:** https://app.freshlense.xyz/api/health
 
 ---
 
@@ -41,22 +43,88 @@ Beyond the product itself, FreshLense is a full demonstration of production-grad
 
 ## Architecture
 
-```
-Developer → GitHub → GitHub Actions (CI: build, test, Docker image → Docker Hub)
-                              ↓
-                  Jenkins (CD, webhook-triggered)
-                              ↓
-                    AWS EC2 · Docker Compose
-        ┌─────────────────────┼─────────────────────┐
-   React Frontend      FastAPI Backend         MongoDB Atlas
-                              ↓
-                  Nginx Reverse Proxy + Let's Encrypt (HTTPS)
-                              ↓
-                    https://app.freshlense.xyz
+```text
+                    Developer
+                        │
+                        ▼
+                Local Development
+                        │
+                        ▼
+                Git Version Control
+                        │
+                        ▼
+                GitHub Repository
+                        │
+                        ▼
+      GitHub Actions (Continuous Integration)
+        • Build
+        • Test
+        • Docker Image Creation
+        • Push to Docker Hub
+                        │
+                        ▼
+                   Docker Hub
+                        │
+                        ▼
+        Jenkins (Continuous Deployment)
+                        │
+                        ▼
+                  AWS EC2 Server
+                        │
+                        ▼
+            Docker Compose Production
+                        │
+        ┌───────────────┼────────────────┐
+        ▼               ▼                ▼
+  React Frontend   FastAPI Backend   MongoDB Atlas
+                        │
+                        ▼
+              Nginx Reverse Proxy
+                        │
+                        ▼
+            HTTPS (Let's Encrypt SSL)
+                        │
+                        ▼
+            https://app.freshlense.xyz
 
-Observability: FastAPI metrics → Prometheus → Grafana / Alertmanager (email)
-               Docker logs → Promtail → Loki → Grafana Explore
-               Host metrics → Node Exporter → Prometheus
+──────────────────────────────────────────────────────
+
+          Production Observability Stack
+
+FastAPI Metrics
+        │
+        ▼
+  Prometheus
+        │
+        ▼
+    Grafana Dashboards
+
+Docker Logs
+        │
+        ▼
+   Promtail
+        │
+        ▼
+      Loki
+        │
+        ▼
+    Grafana Logs
+
+Prometheus Alerts
+        │
+        ▼
+  Alertmanager
+        │
+        ▼
+ Email Notifications
+
+Node Exporter
+        │
+        ▼
+Infrastructure Metrics
+        │
+        ▼
+    Prometheus
 ```
 
 ![Architecture](docs/images/system-architecture.png)
@@ -101,11 +169,91 @@ Observability: FastAPI metrics → Prometheus → Grafana / Alertmanager (email)
 
 Zero manual steps from `git push` to production.
 
+## 🚀 CI/CD Workflow
+
+```text
+                        Developer
+                            │
+                    git push origin main
+                            │
+                            ▼
+                    GitHub Repository
+                            │
+                            ▼
+            GitHub Actions (Continuous Integration)
+            ├── Checkout Source Code
+            ├── Build React Frontend
+            ├── Build FastAPI Backend
+            ├── Build Docker Images
+            ├── Push Images to Docker Hub
+            └── Verify Build Success
+                            │
+                            ▼
+                        Docker Hub
+                            │
+                  GitHub Webhook Trigger
+                            │
+                            ▼
+             Jenkins (Continuous Deployment)
+                            │
+                SSH Deployment to AWS EC2
+                            │
+                            ▼
+                  Production Server (EC2)
+             ├── Pull Latest Docker Images
+             ├── Recreate Containers
+             ├── Verify Container Health
+             ├── Remove Unused Docker Images
+             └── Confirm Successful Deployment
+                            │
+                            ▼
+                Nginx Reverse Proxy + HTTPS
+                            │
+                            ▼
+                https://app.freshlense.xyz
+```
 ---
 
 ## Monitoring & Alerting
 
-Prometheus scrapes custom FastAPI metrics (requests, latency, status codes, crawl duration/count) and Node Exporter host metrics; Grafana visualizes them across dedicated dashboards (infra health, API performance, crawl analytics). Loki + Promtail centralize container logs for search in Grafana Explore. Alertmanager emails on: backend down, high CPU/memory, low disk, exporter/Prometheus/Loki/Alertmanager down, and container restarts — all validated in production.
+- Prometheus scrapes custom FastAPI metrics (requests, latency, status codes, crawl duration/count) and Node Exporter host metrics; Grafana visualizes them across dedicated dashboards (infra health, API performance, crawl analytics).
+- Loki + Promtail centralize container logs for search in Grafana Explore. Alertmanager emails on: backend down, high CPU/memory, low disk, exporter/Prometheus/Loki/Alertmanager down, and container restarts — all validated in production.
+
+## 📈 Observability Architecture
+
+```text
+                FreshLense Production
+        ┌──────────┬──────────┬──────────┐
+        │          │          │          │
+        ▼          ▼          ▼          ▼
+    Frontend    Backend    MongoDB   EC2 Host
+                    │                    │
+                    ▼                    ▼
+        Custom Metrics         Node Exporter
+                    │
+                    ▼
+              Prometheus
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+      Grafana           Alertmanager
+                              │
+                              ▼
+                     Email Notifications
+
+────────────────────────────────────────────
+
+Application Logs
+        │
+        ▼
+    Promtail
+        │
+        ▼
+      Loki
+        │
+        ▼
+    Grafana Explore
+```
 
 ---
 
