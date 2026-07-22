@@ -25,9 +25,15 @@
 
 </p>
 
-**Live App:** https://app.freshlense.xyz
-**API Docs:** https://app.freshlense.xyz/api/docs
-**Health:** https://app.freshlense.xyz/api/health
+---
+
+## 🌐 Live Demo
+
+**Application:** https://app.freshlense.xyz
+
+**API Documentation:** https://app.freshlense.xyz/api/docs
+
+**Health Endpoint:** https://app.freshlense.xyz/api/health
 
 ---
 
